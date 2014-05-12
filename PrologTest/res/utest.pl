@@ -1,0 +1,1 @@
+java_test(X, Y) :- jpl_call(X, 'bar', [2], Y).
