@@ -15,6 +15,10 @@ public final class Program {
 		public int bar(int j) {
 			return 42 * j;
 		}
+		
+		public Foo self() {
+			return this;
+		}
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -23,7 +27,7 @@ public final class Program {
 		System.out.println("consult " + (query.hasSolution() ? "succeeded" : "failed"));
 		
 		Variable Y = new Variable("Y");
-		Term goal = new Compound("java_test", new Term[] { new Atom("Y = S#bar(2)"), JPL.newJRef(new Foo()), Y });
+		Term goal = new Compound("java_test", new Term[] { new Atom("Y = S#self#self#bar(2)"), JPL.newJRef(new Foo()), Y });
 		System.out.println("Goal: " + goal.toString());
 		Query q = new Query(goal);
 		while (q.hasMoreSolutions()) {
