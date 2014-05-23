@@ -1,6 +1,7 @@
 package ru.eltech.utest.diagram.state;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -9,25 +10,26 @@ import java.util.List;
 public class State {
 	private String name;
 	private String invariant;
-	/**
-	 * список действий
-	 */
-	private List<Action> actionList = new ArrayList<Action>();
+	private List<Action> actions = new ArrayList<>(); // список действий
 
-	public State(String name) {
+	public State(String name, String invariant) {
 		this.name = name;
-	}
-	
-	public void addAction(Action action1) {
-		actionList.add(action1);
+		this.invariant = invariant;
 	}
 
 	public String getName() {
 		return name;
 	}
-
-	public void setName(String name, String invariant) {
-		this.name = name;
-		this.invariant = invariant;
+	
+	public String getInvariant() {
+		return invariant;
+	}
+	
+	public List<Action> getActions() {
+		return Collections.unmodifiableList(actions);
+	}
+	
+	public void addAction(Action action) {
+		actions.add(action);
 	}
 }

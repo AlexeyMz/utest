@@ -1,3 +1,4 @@
+:- use_module(library(clpfd)).
 :- op(100, yfx, user:(#)).
 
 bind_vars(_, []).
@@ -31,3 +32,10 @@ java_test(E, S, Y) :-
 	bind_vars(['S' = S, 'Y' = Y], AVs),
 	meta(T, T1),
 	T1.
+
+ocl_test(E, Bindings) :-
+	print(E), nl,
+	print(Bindings), nl,
+	read_term_from_atom(E, T, [variable_names(AVs)]),
+	bind_vars(Bindings, AVs),
+	T.

@@ -6,25 +6,37 @@ import ru.eltech.utest.diagram.type.Method;
  * Действие
  */
 public class Action {
-	private String name; //название
-	private String condition; //предусловие
-	private String postcondition; //постусловие
-	private Method action; //действие
-	private String name2; //конечное состояние
+	private String name; // название
+	private String precondition; // предусловие
+	private String postcondition; // постусловие
+	private Method method; // действие
+	private State endState; // конечное состояние
 	
-	public Action(String name, String condition, String postcondition, String name2, Method action){
+	public Action(String name, String precondition, String postcondition, Method method, State endState){
     	this.name = name;
-    	this.name2 = name2;
-    	this.condition = condition;
+    	this.precondition = precondition;
     	this.postcondition = postcondition;
-    	this.action = action;
+    	this.method = method;
+    	this.endState = endState;
     }
 	
 	public String getName() {
         return name;
     }
-	
-    public void setName(String name) {
-        this.name = name;
+    
+    public String getPrecondition() {
+    	return precondition;
+    }
+    
+    public String getPostcondition() {
+    	return postcondition;
+    }
+    
+    public Method getMethod() {
+    	return method;
+    }
+    
+    public State getEndState() {
+    	return endState;
     }
 }
