@@ -1,37 +1,39 @@
 package ru.eltech.utest.predicate;
 
+import static ru.eltech.utest.predicate.JPLUtils.*;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenSource;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.misc.Interval;
-
-import parser.ocl.OclLexer;
-import parser.ocl.OclParser;
-import parser.ocl.OclParser.OclFileContext;
-import ru.eltech.utest.diagram.state.Action;
-import ru.eltech.utest.diagram.state.State;
-import ru.eltech.utest.diagram.state.StateDiagram;
-import ru.eltech.utest.diagram.state.TestWriter;
 import jpl.Atom;
 import jpl.Compound;
 import jpl.JPL;
 import jpl.PrologException;
 import jpl.Query;
 import jpl.Term;
-import jpl.Util;
 import jpl.Variable;
+
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.TokenStream;
+
+import parser.ocl.OclLexer;
+import parser.ocl.OclParser;
+import parser.ocl.OclParser.LogicalExpressionContext;
+import parser.ocl.OclParser.OclExpressionContext;
+import parser.ocl.OclParser.OclFileContext;
+import ru.eltech.utest.diagram.state.Action;
+import ru.eltech.utest.diagram.state.State;
+import ru.eltech.utest.diagram.state.StateDiagram;
+import ru.eltech.utest.diagram.state.TestWriter;
+import ru.eltech.utest.predicate.OclToPrologTranslator.TranslationResult;
 
 public final class Program {
 	
@@ -78,6 +80,38 @@ public final class Program {
 		}
 	}
 	
+	private static void testOclExpression() {
+		try {
+			StringReader reader = new StringReader(
+				"(str = 'foo' or str = 'bar') and (top < max and top + 1 > 4) and (str = 'foo' implies top > 10)");
+			ANTLRInputStream is = new ANTLRInputStream(reader);
+			OclLexer lexer = new OclLexer(is);
+			TokenStream ts = new CommonTokenStream(lexer);
+			OclParser parser = new OclParser(ts);
+			
+			LogicalExpressionContext context = parser.logicalExpression();
+			//context.inspect(parser);
+			
+			OclToPrologTranslator translator = new OclToPrologTranslator();
+			TranslationResult result = translator.translate(context);
+			System.out.println("PrologTerm: " + result.prologTerm.toString());
+			
+			Query query = new Query(result.prologTerm);
+			if (query.hasMoreSolutions()) {
+				Hashtable solution = query.nextSolution();
+				for (Object key : solution.keySet()) {
+					System.out.println(String.format("%s = %s", key, solution.get(key)));
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (RecognitionException e) {
+			e.printStackTrace();
+		} catch (PrologException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private static void testStateAction() {
 		StateDiagram diagram = TestWriter.createStackDiagram();
 		Tester tester = new Tester(diagram, diagram.getSimpleStates().get(0),
@@ -94,26 +128,6 @@ public final class Program {
 			this.diagram = diagram;
 			this.state = state;
 			this.action = action;
-		}
-		
-		private static Term[] terms(Term... terms) {
-			return terms;
-		}
-		
-		private static Atom atom(String atom) {
-			return new Atom(atom);
-		}
-		
-		private static Compound compound(String head, Term... args) {
-			return new Compound(head, args);
-		}
-		
-		private static Term list(Term... elements) {
-			Term result = new Atom("[]");
-			for (int i = elements.length - 1; i >= 0; i--) {
-				result = compound(".", elements[i], result);
-			}
-			return result;
 		}
 		
 		private static <T> String join(Iterable<T> items, String separator) {
@@ -162,7 +176,7 @@ public final class Program {
 		Query query = new Query("consult", new Term[] { new Atom("utest.pl") });
 		System.out.println("consult " + (query.hasSolution() ? "succeeded" : "failed"));
 		try {
-			testStateAction();
+			testOclExpression();
 		} catch (PrologException e) {
 			e.printStackTrace();
 		}

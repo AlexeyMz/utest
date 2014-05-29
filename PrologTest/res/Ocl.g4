@@ -108,53 +108,33 @@ collectionType
   ;
 
 oclExpression
-  : ( ( letExpression )* 'in' )? expression
+  : ( ( letExpression )* 'in' )? logicalExpression
   ;
 
 returnType
   : typeSpecifier
   ;
 
-expression
-  : logicalExpression
-  ;
-
 letExpression
   : 'let' NAME ( LPAREN formalParameterList RPAREN )?
     ( COLON typeSpecifier )?
-    EQUAL expression
-  ;
-
-ifExpression
-  : 'if' expression
-    'then' expression
-    'else' expression
-    'endif'
+    EQUAL logicalExpression
   ;
 
 logicalExpression
-  : relationalExpression
-    ( logicalOperator relationalExpression )*
+  : 'not' logicalExpression  # LogicalNegation
+  | left=logicalExpression op=AND right=logicalExpression  # LogicalBinary
+  | left=logicalExpression op=OR right=logicalExpression  # LogicalBinary
+  | left=logicalExpression op=IMPLIES right=logicalExpression  # LogicalBinary
+  | left=arithmeticExpression op=(EQUAL|GT|LT|GE|LE|NEQUAL) right=arithmeticExpression  # Relation
+  | LPAREN logicalExpression RPAREN  # InnerExpression
   ;
 
-relationalExpression
-  : additiveExpression
-    ( relationalOperator additiveExpression )?
-  ;
 
-additiveExpression
-  : multiplicativeExpression
-    ( addOperator multiplicativeExpression )*
-  ;
-
-multiplicativeExpression
-  : unaryExpression
-    ( multiplyOperator unaryExpression )*
-  ;
-
-unaryExpression
-  : ( unaryOperator postfixExpression )
-  | postfixExpression
+arithmeticExpression
+  : left=arithmeticExpression op=(MULT|DIVIDE) right=arithmeticExpression  # ArithmeticBinary
+  | left=arithmeticExpression op=(PLUS|MINUS) right=arithmeticExpression   # ArithmeticBinary
+  | MINUS? postfixExpression  # ArithmeticUnary
   ;
 
 postfixExpression
@@ -162,11 +142,13 @@ postfixExpression
   ;
 
 primaryExpression
-  : literalCollection 
-  | literal 
-  | propertyCall
-  | LPAREN expression RPAREN 
-  | ifExpression
+  : collectionKind LCURLY (collectionItem (COMMA collectionItem)* )? RCURLY  # LiteralCollection
+  | (STRING | NUMBER | enumLiteral)  # Literal
+  | propertyCall  # PrimaryCall
+  | 'if' condition=logicalExpression
+    'then' thenExpr=logicalExpression
+    'else' elseExpr=logicalExpression
+    'endif'  # IfExpression
   ;
 
 propertyCallParameters
@@ -174,36 +156,23 @@ propertyCallParameters
     |   LPAREN (actualParameterList)? RPAREN
   ;
 
-literal
-  : STRING
-  | NUMBER
-  | enumLiteral
-  ;
-
 enumLiteral
   : NAME DCOLON NAME ( DCOLON NAME )*
   ;
-
 
 simpleTypeSpecifier
   : pathName
   ;
 
-literalCollection
-  : collectionKind LCURLY
-    (collectionItem (COMMA collectionItem)* )?
-    RCURLY
-  ;
-
 collectionItem
-  : expression (DOTDOT expression)?
+  : arithmeticExpression (DOTDOT arithmeticExpression)?
   ;
 
 propertyCall
   : pathName
-    (timeExpression)?
-    (qualifiers)?
-    (propertyCallParameters)?
+    timeExpression?
+    qualifiers?
+    propertyCallParameters?
   ;
 
 qualifiers
@@ -213,7 +182,7 @@ qualifiers
 declarator
   : NAME (COMMA NAME)*
     (COLON simpleTypeSpecifier)?
-    (SEMICOL NAME COLON typeSpecifier EQUAL expression)?
+    (SEMICOL NAME COLON typeSpecifier EQUAL arithmeticExpression)?
     BAR
   ;
 
@@ -226,14 +195,7 @@ timeExpression
   ;
 
 actualParameterList
-  : expression (COMMA expression)*
-  ;
-
-logicalOperator
-  : 'and'
-  | 'or'
-  | 'xor'
-  | 'implies'
+  : arithmeticExpression (COMMA arithmeticExpression)*
   ;
 
 collectionKind
@@ -242,31 +204,7 @@ collectionKind
   | 'Sequence'
   | 'Collection'
   ;
-
-relationalOperator
-  : EQUAL
-  | GT
-  | LT
-  | GE
-  | LE
-  | NEQUAL
-  ;
-
-addOperator
-  : PLUS
-  | MINUS
-  ;
-
-multiplyOperator
-  : MULT
-  | DIVIDE
-  ;
-
-unaryOperator
-  : MINUS
-  | 'not'
-  ;
-
+  
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -277,6 +215,9 @@ WS
 	|	'\r') -> skip
 	;
 
+AND             : 'and';
+OR              : 'or';
+IMPLIES         : 'implies';
 LPAREN			: '(';
 RPAREN			: ')';
 LBRACK			: '[';

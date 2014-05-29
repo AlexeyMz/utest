@@ -12,15 +12,15 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 public class TestWriter {
 	
 	public static StateDiagram createStackDiagram() {
-		State nonFullState = new State("Неполный", "Top #> 0, Top #< Max - 1");
-		State fullState = new State("Полный", "Top #> 0, Top #= Max - 1");
-		State emptyState = new State("Пустой", "Top #= 0, Top #< Max");
+		State nonFullState = new State("Неполный", "top > 0, top < max - 1");
+		State fullState = new State("Полный", "top > 0, top = max - 1");
+		State emptyState = new State("Пустой", "top = 0, top < max");
 		
 		Method popMethod = new Method("pop", "void");
     	Method pushMethod = new Method("push", "void");
     	
-    	nonFullState.addAction(new Action("pop()", "Top #> 1, Top #< Max - 2", "", popMethod, nonFullState));
-    	nonFullState.addAction(new Action("push(k)", "Top #= Max - 2", "", pushMethod, fullState));
+    	nonFullState.addAction(new Action("pop()", "top > 1, top < Max - 2", "", popMethod, nonFullState));
+    	nonFullState.addAction(new Action("push(k)", "Top = Max - 2", "", pushMethod, fullState));
     	
     	fullState.addAction(new Action("pop()", "", "", popMethod, nonFullState));
     	
@@ -30,7 +30,7 @@ public class TestWriter {
     	CompoundState nonEmptyCompound = new CompoundState("Непустой");
     	nonEmptyCompound.addState(nonFullState);
     	nonEmptyCompound.addState(fullState);
-    	nonEmptyCompound.addAction(new Action("pop()", "Top #= 1", "", popMethod, emptyState));
+    	nonEmptyCompound.addAction(new Action("pop()", "top = 1", "", popMethod, emptyState));
     	
     	StateDiagram diagram = new StateDiagram();
     	diagram.addSimpleState(emptyState);
