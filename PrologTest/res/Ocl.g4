@@ -152,8 +152,8 @@ primaryExpression
   ;
 
 propertyCallParameters
-    : LPAREN declarator (actualParameterList)? RPAREN
-    |   LPAREN (actualParameterList)? RPAREN
+    : LPAREN declarator actualParameterList? RPAREN
+    | LPAREN actualParameterList? RPAREN
   ;
 
 enumLiteral

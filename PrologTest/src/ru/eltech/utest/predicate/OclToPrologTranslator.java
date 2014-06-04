@@ -3,35 +3,21 @@ package ru.eltech.utest.predicate;
 import static ru.eltech.utest.predicate.JPLUtils.*;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-import jpl.Compound;
 import jpl.Term;
 import jpl.Variable;
-
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-
-import com.sun.corba.se.impl.orb.ParserTable;
-import com.sun.org.apache.bcel.internal.generic.FNEG;
-
-import parser.ocl.OclBaseListener;
 import parser.ocl.OclBaseVisitor;
 import parser.ocl.OclParser;
 import parser.ocl.OclParser.ArithmeticBinaryContext;
-import parser.ocl.OclParser.ArithmeticExpressionContext;
 import parser.ocl.OclParser.ArithmeticUnaryContext;
 import parser.ocl.OclParser.InnerExpressionContext;
 import parser.ocl.OclParser.LiteralContext;
 import parser.ocl.OclParser.LogicalBinaryContext;
 import parser.ocl.OclParser.LogicalExpressionContext;
 import parser.ocl.OclParser.LogicalNegationContext;
-import parser.ocl.OclParser.OclExpressionContext;
 import parser.ocl.OclParser.PostfixExpressionContext;
 import parser.ocl.OclParser.PrimaryCallContext;
 import parser.ocl.OclParser.RelationContext;
@@ -66,8 +52,6 @@ public class OclToPrologTranslator {
 	}
 	
 	public TranslationResult translate(LogicalExpressionContext expression) {
-		ParseTreeWalker walker = new ParseTreeWalker();
-		//walker.walk(new TranslationListener(), expression);
 		TranslatorVisitor visitor = new TranslatorVisitor();
 		Term term = visitor.visit(expression);
 		return new TranslationResult(term);
@@ -205,8 +189,9 @@ public class OclToPrologTranslator {
 		public Term wrap(Term term) {
 			Term[] prologVars = variables.values().stream().toArray(size -> new Term[size]);
 			return foldl(",",
-				compound("ins", list(prologVars), compound("..", atom(0), atom(1000))),
+				//compound("ins", list(prologVars), compound("..", atom(0), atom(1000))),
 				term,
+				compound("make_finite", list(prologVars)),
 				compound("label", list(prologVars)));
 		}
 		

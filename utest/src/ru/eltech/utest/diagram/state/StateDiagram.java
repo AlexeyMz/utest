@@ -1,26 +1,21 @@
 package ru.eltech.utest.diagram.state;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class StateDiagram {
-	private List<State> simpleStates = new ArrayList<>();
-	private List<CompoundState> compoundStates = new ArrayList<>();
+	private CompositeState root;
 	
-	public List<State> getSimpleStates() {
-		return Collections.unmodifiableList(simpleStates);
+	public StateDiagram() {
+		this(null);
 	}
 	
-	public void addSimpleState(State state) {
-		simpleStates.add(state);
+	public StateDiagram(CompositeState root) {
+		this.root = root;
 	}
 	
-	public List<CompoundState> getCompoundStates() {
-		return Collections.unmodifiableList(compoundStates);
+	public CompositeState getRoot() {
+		return root;
 	}
 	
-	public void addCompoundState(CompoundState state) {
-		compoundStates.add(state);
+	public void setRoot(CompositeState root) {
+		this.root = root;
 	}
 }

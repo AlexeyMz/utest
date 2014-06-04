@@ -114,8 +114,8 @@ public final class Program {
 	
 	private static void testStateAction() {
 		StateDiagram diagram = TestWriter.createStackDiagram();
-		Tester tester = new Tester(diagram, diagram.getSimpleStates().get(0),
-				diagram.getSimpleStates().get(0).getActions().get(1));
+		Tester tester = new Tester(diagram, diagram.getRoot().getChildren().get(0),
+				diagram.getRoot().getChildren().get(0).getActions().get(1));
 		tester.run();
 	}
 	

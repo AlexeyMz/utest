@@ -1,4 +1,5 @@
 :- use_module(library(clpfd)).
+:- use_module(library(apply)).
 :- op(100, yfx, user:(#)).
 
 bind_vars(_, []).
@@ -39,3 +40,14 @@ ocl_test(E, Bindings) :-
 	read_term_from_atom(E, T, [variable_names(AVs)]),
 	bind_vars(Bindings, AVs),
 	T.
+
+make_finite([]).
+make_finite([H|T]) :- make_finite_i(H), make_finite(T).
+make_finite_i(X) :-
+	(fd_sup(X, sup) -> X #=< 1000 ; true),
+	(fd_inf(X, inf) -> X #>= 0; true).
+
+min_fd(X, Y, Z) :- Z #= min(X, Y).
+
+length_fd(L, Len) :- Len #>= 0, make_finite_i(Len), label([Len]), length(L, Len).
+

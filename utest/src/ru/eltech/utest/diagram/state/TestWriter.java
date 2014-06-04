@@ -12,8 +12,8 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 public class TestWriter {
 	
 	public static StateDiagram createStackDiagram() {
-		State nonFullState = new State("Неполный", "top > 0, top < max - 1");
-		State fullState = new State("Полный", "top > 0, top = max - 1");
+		State nonFullState = new State("Неполный", "top < max - 1");
+		State fullState = new State("Полный", "top = max - 1");
 		State emptyState = new State("Пустой", "top = 0, top < max");
 		
 		Method popMethod = new Method("pop", "void");
@@ -27,18 +27,16 @@ public class TestWriter {
     	emptyState.addAction(new Action("push(k)", "Top #< Max - 2", "", pushMethod, nonFullState));
     	emptyState.addAction(new Action("push(k)", "Top #= Max - 2", "", pushMethod, fullState));
     	
-    	CompoundState nonEmptyCompound = new CompoundState("Непустой");
-    	nonEmptyCompound.addState(nonFullState);
-    	nonEmptyCompound.addState(fullState);
+    	CompositeState nonEmptyCompound = new CompositeState("Непустой", "top > 0");
+    	nonEmptyCompound.addChild(nonFullState);
+    	nonEmptyCompound.addChild(fullState);
     	nonEmptyCompound.addAction(new Action("pop()", "top = 1", "", popMethod, emptyState));
     	
-    	StateDiagram diagram = new StateDiagram();
-    	diagram.addSimpleState(emptyState);
-    	diagram.addSimpleState(nonFullState);
-    	diagram.addSimpleState(fullState);
-    	diagram.addCompoundState(nonEmptyCompound);
+    	CompositeState root = new CompositeState("", "");
+    	root.addChild(emptyState);
+    	root.addChild(nonEmptyCompound);
     	
-    	return diagram;
+    	return new StateDiagram(root);
 	}
 	
 	public static void main(String[] args) throws FileNotFoundException {
