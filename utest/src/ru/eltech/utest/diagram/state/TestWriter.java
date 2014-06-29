@@ -19,13 +19,13 @@ public class TestWriter {
 		Method popMethod = new Method("pop", "void");
     	Method pushMethod = new Method("push", "void");
     	
-    	nonFullState.addAction(new Action("pop()", "top > 1, top < Max - 2", "", popMethod, nonFullState));
-    	nonFullState.addAction(new Action("push(k)", "Top = Max - 2", "", pushMethod, fullState));
+    	nonFullState.addAction(new Action("pop()", "top > 1, top < max - 2", "", popMethod, nonFullState));
+    	nonFullState.addAction(new Action("push(k)", "top = max - 2", "", pushMethod, fullState));
     	
     	fullState.addAction(new Action("pop()", "", "", popMethod, nonFullState));
     	
-    	emptyState.addAction(new Action("push(k)", "Top #< Max - 2", "", pushMethod, nonFullState));
-    	emptyState.addAction(new Action("push(k)", "Top #= Max - 2", "", pushMethod, fullState));
+    	emptyState.addAction(new Action("push(k)", "top < max - 2", "", pushMethod, nonFullState));
+    	emptyState.addAction(new Action("push(k)", "top = max - 2", "", pushMethod, fullState));
     	
     	CompositeState nonEmptyCompound = new CompositeState("Непустой", "top > 0");
     	nonEmptyCompound.addChild(nonFullState);
